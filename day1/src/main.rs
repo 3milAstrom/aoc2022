@@ -37,3 +37,7 @@ fn main() {
     println!("Biggest value: {biggest}");
     println!("Top three: {}", sum);
 }
+
+
+// Biggest value: 67633
+// Top three: 199628
