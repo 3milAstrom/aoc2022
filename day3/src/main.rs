@@ -9,7 +9,7 @@ fn read_file(path: &str) -> Vec<String>{
 }
 
 fn part1(input: Vec<String>) -> Vec<i32> {
-    let ans: Vec<i32> = input.iter().map(|s| {
+    input.iter().map(|s| {
         let lenght = s.len();
         let (f,l) = s.split_at(lenght / 2);
 
@@ -19,15 +19,12 @@ fn part1(input: Vec<String>) -> Vec<i32> {
         let val = i.first().unwrap().to_owned();
 
 
-        let a = match val {
+        match val {
             n @ 'a'..='z' => n as i32 - 96,
             n @ 'A'..='Z' => n as i32 - 64 + 26,
             n => panic!("{n}")
-        };
-        a
-    }).collect();
-
-    ans
+        }
+    }).collect()
 }
 
 fn part2(input: Vec<String>) -> Vec<i32> {
@@ -50,7 +47,6 @@ fn part2(input: Vec<String>) -> Vec<i32> {
         };
         i += 3;
     }
-
     v
 }
 
@@ -58,6 +54,7 @@ fn part2(input: Vec<String>) -> Vec<i32> {
 fn main() {
     // let input = read_file("./src/test_input.txt");
     let input = read_file("./src/part1_input.txt");
+
     let ans = part1(input.to_owned()).iter().sum::<i32>();
     let ans2 = part2(input).iter().sum::<i32>();
 
