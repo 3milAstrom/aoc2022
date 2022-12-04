@@ -1,11 +1,41 @@
 extern crate array_tool;
 use array_tool::vec::Intersect;
 
-use std::fs;
+use std::{fs, str::FromStr, num::ParseIntError};
 
 struct Sequence {
     start: i32,
     stop: i32,
+}
+
+impl Sequence {
+    fn get_range_inc(&self) -> Vec<i32> {
+        (self.start..(self.stop + 1)).collect()
+    }
+
+    fn either_fully_envelope(&self, other: &Sequence) -> Option<()> {
+        let first_seq = self.get_range_inc();
+        let second_seq = other.get_range_inc();
+
+        let intersect = first_seq.intersect(second_seq.to_owned());
+        if intersect.len() == first_seq.len() || intersect.len() == second_seq.len() {
+            Some(())
+        } else {
+            None
+        }
+    }
+}
+
+impl FromStr for Sequence {
+    type Err = ParseIntError;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let (start, stop ) = s.split_once('-').unwrap();
+
+        let start_fromstr = start.parse::<i32>()?;
+        let stop_fromstr = stop.parse::<i32>()?;
+
+        Ok(Sequence { start: start_fromstr, stop: stop_fromstr })
+    }
 }
 
 fn read_file(path: &str) -> Vec<String> {
@@ -14,37 +44,20 @@ fn read_file(path: &str) -> Vec<String> {
 }
 
 fn part1(input: Vec<String>) -> usize {
-    let overlaps: Vec<i32> = input
+    let overlaps: Vec<Option<()>> = input
         .iter()
         .map(|f| {
             let seq: Vec<Sequence> = f
                 .split(',')
-                .map(|s| {
-                    let st = s.to_string();
-                    let val: Vec<i32> = st.split('-').map(|v| v.parse::<i32>().unwrap()).collect();
-
-                    Sequence {
-                        start: val.first().unwrap().to_owned(),
-                        stop: val.get(1).unwrap().to_owned(),
-                    }
-                })
+                .map(|s| s.parse::<Sequence>().unwrap())
                 .collect();
 
-            let s1 = seq.first().unwrap().to_owned();
-            let s2 = seq.get(1).unwrap().to_owned();
+            let first_seq = seq.first().unwrap().to_owned();
+            let second_seq = seq.get(1).unwrap().to_owned();
 
-            let first_seq: Vec<i32> = (s1.start..(s1.stop + 1)).collect();
-            let second_seq: Vec<i32> = (s2.start..(s2.stop + 1)).collect();
-
-            let intersect = first_seq.intersect(second_seq.to_owned());
-
-            if intersect.len() == first_seq.len() || intersect.len() == second_seq.len() {
-                1
-            } else {
-                0
-            }
+            first_seq.either_fully_envelope(second_seq)
         })
-        .filter(|f| *f != 0)
+        .filter(|f| f.is_some())
         .collect();
 
     overlaps.len()
@@ -56,22 +69,11 @@ fn part2(input: Vec<String>) -> usize {
         .map(|f| {
             let seq: Vec<Sequence> = f
                 .split(',')
-                .map(|s| {
-                    let st = s.to_string();
-                    let val: Vec<i32> = st.split('-').map(|v| v.parse::<i32>().unwrap()).collect();
-
-                    Sequence {
-                        start: val.first().unwrap().to_owned(),
-                        stop: val.get(1).unwrap().to_owned(),
-                    }
-                })
+                .map(|s| s.parse::<Sequence>().unwrap())
                 .collect();
 
-            let s1 = seq.first().unwrap().to_owned();
-            let s2 = seq.get(1).unwrap().to_owned();
-
-            let first_seq: Vec<i32> = (s1.start..(s1.stop + 1)).collect();
-            let second_seq: Vec<i32> = (s2.start..(s2.stop + 1)).collect();
+            let first_seq = seq.first().unwrap().to_owned().get_range_inc();
+            let second_seq = seq.get(1).unwrap().to_owned().get_range_inc();
 
             first_seq.intersect(second_seq).len()
         })
