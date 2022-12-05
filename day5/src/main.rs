@@ -1,6 +1,6 @@
 use std::num::ParseIntError;
-use std::{collections::VecDeque, fs};
 use std::str::FromStr;
+use std::{collections::VecDeque, fs};
 
 fn read_file(path: &str) -> Vec<String> {
     let content = fs::read_to_string(path).expect("Error");
@@ -10,7 +10,7 @@ fn read_file(path: &str) -> Vec<String> {
 struct Move {
     amount: i32,
     from: usize,
-    to: usize
+    to: usize,
 }
 
 impl FromStr for Move {
@@ -22,11 +22,7 @@ impl FromStr for Move {
         let from = c.get(3).unwrap().parse::<usize>()? - 1;
         let to = c.get(5).unwrap().parse::<usize>()? - 1;
 
-        Ok(Move {
-            amount,
-            from,
-            to,
-        })
+        Ok(Move { amount, from, to })
     }
 }
 
@@ -43,7 +39,11 @@ fn setup_cargo(input: Vec<String>) -> (Vec<VecDeque<String>>, Vec<Move>) {
                 .chunks(4)
                 .map(|c| {
                     let s = c.get(1).unwrap().to_string();
-                    if !s.trim().is_empty() {Some(s)} else {None}
+                    if !s.trim().is_empty() {
+                        Some(s)
+                    } else {
+                        None
+                    }
                 })
                 .collect::<Vec<Option<String>>>();
             Some(row)
@@ -75,7 +75,7 @@ fn setup_cargo(input: Vec<String>) -> (Vec<VecDeque<String>>, Vec<Move>) {
 }
 
 fn part1(input: Vec<String>) {
-    let (mut cargo, moves) = setup_cargo(input);;
+    let (mut cargo, moves) = setup_cargo(input);
     moves.iter().for_each(|m| {
         let mut j = 0;
 
@@ -96,7 +96,6 @@ fn part2(input: Vec<String>) {
     let (mut cargo, moves) = setup_cargo(input);
 
     moves.iter().for_each(|m| {
-
         let mut j = 0;
         let mut stage: VecDeque<String> = VecDeque::new();
 
