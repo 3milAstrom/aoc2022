@@ -1,6 +1,6 @@
 use std::num::ParseIntError;
 use std::str::FromStr;
-use std::{collections::VecDeque, fs};
+use std::{fs};
 
 fn read_file(path: &str) -> Vec<String> {
     let content = fs::read_to_string(path).expect("Error");
@@ -26,7 +26,7 @@ impl FromStr for Move {
     }
 }
 
-fn setup_cargo(input: Vec<String>) -> (Vec<VecDeque<String>>, Vec<Move>) {
+fn setup_cargo(input: Vec<String>) -> (Vec<Vec<String>>, Vec<Move>) {
     let mut rows = input
         .iter()
         .map_while(|s| {
@@ -55,14 +55,18 @@ fn setup_cargo(input: Vec<String>) -> (Vec<VecDeque<String>>, Vec<Move>) {
 
     let cargo_width = rows.first().unwrap().len();
 
-    let mut cargo: Vec<VecDeque<String>> = vec![VecDeque::new(); cargo_width];
+    let mut cargo: Vec<Vec<String>> = vec![Vec::new(); cargo_width];
 
     rows.iter().for_each(|row| {
         row.iter().enumerate().for_each(|(column, c)| {
             if c.is_some() {
-                cargo[column].push_front(c.to_owned().unwrap())
+                cargo[column].push(c.to_owned().unwrap())
             }
         });
+    });
+
+    cargo.iter_mut().for_each(|v| {
+        v.reverse();
     });
 
     let moves = input
@@ -80,15 +84,15 @@ fn part1(input: Vec<String>) {
         let mut j = 0;
 
         while j < m.amount {
-            let c = cargo.get_mut(m.from).unwrap().pop_back().unwrap();
-            cargo.get_mut(m.to).unwrap().push_back(c);
+            let c = cargo.get_mut(m.from).unwrap().pop().unwrap();
+            cargo.get_mut(m.to).unwrap().push(c);
 
             j += 1;
         }
     });
 
     for ele in cargo {
-        print!("{:}", ele.back().unwrap());
+        print!("{:}", ele.last().unwrap());
     }
 }
 
@@ -97,11 +101,11 @@ fn part2(input: Vec<String>) {
 
     moves.iter().for_each(|m| {
         let mut j = 0;
-        let mut stage: VecDeque<String> = VecDeque::new();
+        let mut stage: Vec<String> = Vec::new();
 
         while j < m.amount {
-            let c = cargo.get_mut(m.from).unwrap().pop_back().unwrap();
-            stage.push_back(c);
+            let c = cargo.get_mut(m.from).unwrap().pop().unwrap();
+            stage.push(c);
 
             j += 1;
         }
@@ -109,14 +113,14 @@ fn part2(input: Vec<String>) {
         j = 0;
 
         while j < m.amount {
-            let c = stage.pop_back().unwrap();
-            cargo.get_mut(m.to).unwrap().push_back(c);
+            let c = stage.pop().unwrap();
+            cargo.get_mut(m.to).unwrap().push(c);
             j += 1;
         }
     });
 
     for ele in cargo {
-        print!("{:}", ele.back().unwrap());
+        print!("{:}", ele.last().unwrap());
     }
 }
 
