@@ -1,5 +1,46 @@
+use std::cell::RefCell;
 use std::fs;
 use std::collections::HashMap;
+
+struct FileSystem {
+    map: HashMap<String, usize>,
+    current_path: RefCell<Vec<String>>
+}
+
+impl FileSystem {
+    fn get_current_folder(&self) -> String {
+        self.current_path.borrow().concat()
+    }
+
+    fn get_size(&mut self, dirr: String) -> usize {
+        self.map.get(&dirr).unwrap().to_owned()
+    }
+
+    fn go_up(&mut self) {
+        let c1 = self.get_current_folder();
+        self.current_path.borrow_mut().pop();
+        let c2 = self.get_current_folder();
+        let s1 = self.get_size(c1);
+        let s2 = self.get_size(c2.to_owned());
+        self.map.insert(c2, s1 + s2);
+    }
+
+    fn go_in(&mut self, path: String) {
+        self.current_path.borrow_mut().push(path.trim().to_string());
+        self.map.insert(self.get_current_folder(), 0);
+    }
+
+    fn add_size(&mut self, size: usize) {
+        let s1 = self.get_size(self.get_current_folder());
+        self.map.insert(self.get_current_folder(), s1 + size);
+    }
+
+    fn go_to_root(&mut self) {
+        while self.get_current_folder() != "/" {
+            self.go_up();
+        }
+    }
+}
 
 fn read_file(path: &str) -> Vec<String> {
     let content = fs::read_to_string(path).expect("Error");
@@ -10,22 +51,19 @@ fn run() {
     // let input = read_file("./src/test_input.txt");
     let input = read_file("./src/part1_input.txt");
 
-    let mut file_system: HashMap<String, usize> = HashMap::new();
-    let mut current_path: String = "".to_string();
-    let mut current_l: Vec<usize> = Vec::new();
+    let mut file_system = FileSystem {
+        map: HashMap::new(),
+        current_path: RefCell::new(Vec::new())
+    };
+
     input.iter().for_each(|r| {
         let (operation, value) = (&r[0..=3],&r[4..]);
         match operation {
             "$ cd" => {
                 if value.trim() == ".." {
-                    let l = current_l.pop().unwrap();
-                    let next = current_path[..current_path.len() - l ].to_string().clone();
-                    *file_system.get_mut(&next).unwrap() += *file_system.get_mut(&current_path).unwrap();
-                    current_path = next;
+                    file_system.go_up();
                 } else {
-                    current_l.push(value.trim().len());
-                    current_path.push_str(value.trim());
-                    file_system.insert(current_path.to_owned(), 0);
+                    file_system.go_in(value.to_string());
                 }
 
             },
@@ -34,24 +72,20 @@ fn run() {
                 let (s,_) = r.split_once(' ').unwrap();
                 if s != "dir".to_string() {
                     let size = s.parse::<usize>().unwrap();
-                    *file_system.get_mut(&current_path).unwrap() += size;
+                    file_system.add_size(size)
                 }
             }
 
         }
     });
 
-    while current_path != "/" {
-        let l = current_l.pop().unwrap();
-        let next = current_path[..current_path.len() - l ].to_string().clone();
-        *file_system.get_mut(&next).unwrap() += *file_system.get_mut(&current_path).unwrap();
-        current_path = next;
-    }
+    file_system.go_to_root();
+
     let mut size: usize = 0;
-    let current: i32 = 70000000 - (*file_system.get("/").unwrap() as i32);
+    let current: i32 = 70000000 - (*file_system.map.get("/").unwrap() as i32);
     let mut v: Vec<i32> = Vec::new();
 
-    for (key, value) in file_system.to_owned() {
+    for (_, value) in file_system.map.to_owned() {
         if value < 100000 {
             size += value;
         }
