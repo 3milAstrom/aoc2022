@@ -1,24 +1,25 @@
-use std::{fs};
+use std::fs;
 
 fn read_file(path: &str) -> String {
     return fs::read_to_string(path).expect("Error")
 }
 
+fn get_slice(s: Vec<char>, start: usize, stop: usize) -> Vec<char> {
+    s[start..stop].iter().map(|s| s.to_owned()).collect::<Vec<char>>()
+}
+
 fn find_pos(input: String, n_unique: usize) -> Option<usize> {
     let chars = input.chars().collect::<Vec<char>>();
-    let pos = chars.iter().enumerate().position(|(i, _)| {
+    chars.iter().enumerate().position(|(i, _)| {
         if i > chars.len() - n_unique {
             return false
         }
-        let slice = chars[i..i+n_unique].iter().map(|s| s.to_owned()).collect::<Vec<char>>();
-        let n = slice.iter().all(|&f| {
+        let slice = get_slice(chars.to_owned(), i, i+n_unique);
+        slice.iter().all(|&f| {
             let d = slice.iter().filter(|&&x| x == f).collect::<Vec<&char>>().len();
             if d > 1 {false} else {true}
-        });
-        n
-    });
-
-    pos
+        })
+    })
 }
 
 fn part1(input: String) {
