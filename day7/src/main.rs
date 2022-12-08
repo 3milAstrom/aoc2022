@@ -40,6 +40,29 @@ impl FileSystem {
             self.go_up();
         }
     }
+
+    fn handle_input(&mut self, cmd: String) {
+        let (operation, value) = (&cmd[0..=3],&cmd[4..]);
+        match operation {
+            "$ cd" => {
+                if value.trim() == ".." {
+                    self.go_up();
+                } else {
+                    self.go_in(value.to_string());
+                }
+
+            },
+            "$ ls" => (),
+            _ => {
+                let (s,_) = cmd.split_once(' ').unwrap();
+                if s != "dir".to_string() {
+                    let size = s.parse::<usize>().unwrap();
+                    self.add_size(size)
+                }
+            }
+
+        }
+    }
 }
 
 fn read_file(path: &str) -> Vec<String> {
@@ -56,28 +79,7 @@ fn run() {
         current_path: RefCell::new(Vec::new())
     };
 
-    input.iter().for_each(|r| {
-        let (operation, value) = (&r[0..=3],&r[4..]);
-        match operation {
-            "$ cd" => {
-                if value.trim() == ".." {
-                    file_system.go_up();
-                } else {
-                    file_system.go_in(value.to_string());
-                }
-
-            },
-            "$ ls" => (),
-            _ => {
-                let (s,_) = r.split_once(' ').unwrap();
-                if s != "dir".to_string() {
-                    let size = s.parse::<usize>().unwrap();
-                    file_system.add_size(size)
-                }
-            }
-
-        }
-    });
+    input.iter().for_each(|r| file_system.handle_input(r.to_owned()));
 
     file_system.go_to_root();
 
