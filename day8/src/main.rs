@@ -78,33 +78,32 @@ fn part1(input: Vec<String>) {
 
     let mut sol: Vec<i32> = Vec::new();
 
+    map.iter().for_each(|(pos, val)| {
+        let (x_s,y_s) = pos.split_once(' ').unwrap();
+        let x = x_s.parse::<i32>().unwrap();
+        let y = y_s.parse::<i32>().unwrap();
+        if (x != 0 && y != 0) && (x != coll_len as i32 - 1 && y != row_len as i32 - 1) {
 
-    asd.iter().enumerate().for_each(|(i, v)| {
-        v.iter().enumerate().for_each(|(j,val)| {
-            if (i != 0 && j != 0) && (i != coll_len - 1 && j != row_len - 1) {
-                let p = to_key(i as i32, j as i32);
-                // let val = map.get(&p).unwrap();
+            let dirr = get_indexes_to_check((x,y), map.to_owned(), row_len, coll_len);
 
-                let dirr = get_indexes_to_check((i as i32,j as i32), map.to_owned(), row_len, coll_len);
-                let top_max = dirr.top.iter().map(|f| {
-                    map.get(f).unwrap()
-                }).max().unwrap();
-                let bottom_max = dirr.bottom.iter().map(|f| {
-                    map.get(f).unwrap()
-                }).max().unwrap();
-                let left_max = dirr.left.iter().map(|f| {
-                    map.get(f).unwrap()
-                }).max().unwrap();
-                let right_max = dirr.right.iter().map(|f| {
-                    map.get(f).unwrap()
-                }).max().unwrap();
+            let top_max = dirr.top.iter().map(|f| {
+                map.get(f).unwrap()
+            }).max().unwrap();
+            let bottom_max = dirr.bottom.iter().map(|f| {
+                map.get(f).unwrap()
+            }).max().unwrap();
+            let left_max = dirr.left.iter().map(|f| {
+                map.get(f).unwrap()
+            }).max().unwrap();
+            let right_max = dirr.right.iter().map(|f| {
+                map.get(f).unwrap()
+            }).max().unwrap();
 
-                if val > top_max || val > bottom_max || val > left_max || val > right_max {
-                    sol.push(val.to_owned());
-                }
+            if val > top_max || val > bottom_max || val > left_max || val > right_max {
+                sol.push(val.to_owned());
             }
+        }
 
-        });
     });
 
     let s = sol.iter().len() + (row_len * 2) + (coll_len * 2) - 4;
@@ -129,13 +128,13 @@ fn part2(input: Vec<String>) {
     let mut sol: Vec<i32> = Vec::new();
 
 
-    asd.iter().enumerate().for_each(|(i, v)| {
-        v.iter().enumerate().for_each(|(j,val)| {
-            if (i != 0 && j != 0) && (i != coll_len - 1 && j != row_len - 1) {
-                let p = to_key(i as i32, j as i32);
-                // let val = map.get(&p).unwrap();
+    map.iter().for_each(|(pos, val)| {
+        let (x_s,y_s) = pos.split_once(' ').unwrap();
+        let x = x_s.parse::<i32>().unwrap();
+        let y = y_s.parse::<i32>().unwrap();
+        if (x != 0 && y != 0) && (x != coll_len as i32 - 1 && y != row_len as i32 - 1) {
 
-                let dirr = get_indexes_to_check((i as i32,j as i32), map.to_owned(), row_len, coll_len);
+                let dirr = get_indexes_to_check((x,y), map.to_owned(), row_len, coll_len);
                 let mut top_max = dirr.top.iter().map(|f| {
                     map.get(f).unwrap().to_owned()
                 }).collect::<Vec<i32>>();
@@ -156,12 +155,10 @@ fn part2(input: Vec<String>) {
                 let b = get_view(val.to_owned(), bottom_max.to_owned());
                 let c = get_view(val.to_owned(), left_max.to_owned());
                 let d = get_view(val.to_owned(), right_max.to_owned());
-                let aa = a * b * c * d;
                 sol.push(a * b * c * d);
             }
 
-        });
-    });
+});
 
     let s = sol.iter().max().unwrap();
     println!("{s}") // 374400
