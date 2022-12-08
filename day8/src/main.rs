@@ -59,6 +59,13 @@ fn get_view(val: i32, v: Vec<i32>) -> i32 {
     i
 }
 
+fn get_column(v: Vec<Vec<i32>>, col: i32) -> Vec<i32> {
+    v.iter().map(| row| {
+        row[col as usize]
+    }).collect::<Vec<i32>>()
+
+}
+
 fn part1(input: Vec<String>) {
     let asd = input
         .iter()
@@ -68,51 +75,32 @@ fn part1(input: Vec<String>) {
                 .collect::<Vec<i32>>()
         })
         .collect::<Vec<Vec<i32>>>();
-    let mut map: HashMap<String, i32> = HashMap::new();
-    asd.iter().enumerate().for_each(|(i, v)| {
-        v.iter().enumerate().for_each(|(j, val)| {
-            let k = to_key(i as i32, j as i32);
 
-            map.insert(k, val.to_owned());
-        });
+    let mut sol: Vec<i32> = Vec::new();
+    asd.iter().enumerate().for_each(|(i,row)| {
+        row.iter().enumerate().for_each(|(j, val)|{
+            let col = get_column(asd.to_owned(), j as i32);
+            if (i != 0 && j != 0) && (i != col.len() - 1 && j != row.len()- 1) {
+                let top: i32 = col[0..i].iter().rev().map(|f| f.to_owned()).max().unwrap();
+                let bottom = col[i + 1..col.len()].iter().map(|f| f.to_owned()).max().unwrap();
+                let left = row[0..j].iter().rev().map(|f| f.to_owned()).max().unwrap();
+                let right = row[j + 1..row.len()].iter().map(|f| f.to_owned()).max().unwrap();
+
+                if val > &top || val > &bottom || val > &left || val > &right {
+                    sol.push(val.to_owned());
+                }
+            }
+
+        })
     });
 
     let row_len = asd.first().unwrap().len();
     let coll_len = asd.len();
 
-    let mut sol: Vec<i32> = Vec::new();
-
-    map.iter().for_each(|(pos, val)| {
-        let (x_s, y_s) = pos.split_once(' ').unwrap();
-        let x = x_s.parse::<i32>().unwrap();
-        let y = y_s.parse::<i32>().unwrap();
-        if (x != 0 && y != 0) && (x != coll_len as i32 - 1 && y != row_len as i32 - 1) {
-            let dirr = get_indexes_to_check((x, y), map.to_owned(), row_len, coll_len);
-
-            let top_max = dirr.top.iter().map(|f| map.get(f).unwrap()).max().unwrap();
-            let bottom_max = dirr
-                .bottom
-                .iter()
-                .map(|f| map.get(f).unwrap())
-                .max()
-                .unwrap();
-            let left_max = dirr.left.iter().map(|f| map.get(f).unwrap()).max().unwrap();
-            let right_max = dirr
-                .right
-                .iter()
-                .map(|f| map.get(f).unwrap())
-                .max()
-                .unwrap();
-
-            if val > top_max || val > bottom_max || val > left_max || val > right_max {
-                sol.push(val.to_owned());
-            }
-        }
-    });
-
-    let s = sol.iter().len() + (row_len * 2) + (coll_len * 2) - 4;
-    println!("{s}") // 1715
+    let l = sol.iter().len() + (row_len * 2) + (coll_len * 2) - 4;
+    println!("{l}") // 1715
 }
+
 
 fn part2(input: Vec<String>) {
     let asd = input
@@ -123,61 +111,34 @@ fn part2(input: Vec<String>) {
                 .collect::<Vec<i32>>()
         })
         .collect::<Vec<Vec<i32>>>();
-    let mut map: HashMap<String, i32> = HashMap::new();
-    asd.iter().enumerate().for_each(|(i, v)| {
-        v.iter().enumerate().for_each(|(j, val)| {
-            let k = to_key(i as i32, j as i32);
 
-            map.insert(k, val.to_owned());
-        });
+    let mut sol: Vec<i32> = Vec::new();
+    asd.iter().enumerate().for_each(|(i,row)| {
+        row.iter().enumerate().for_each(|(j, val)|{
+            let col = get_column(asd.to_owned(), j as i32);
+            if (i != 0 && j != 0) && (i != col.len() - 1 && j != row.len()- 1) {
+                let top = col[0..i].iter().rev().map(|f| f.to_owned()).collect::<Vec<i32>>();
+                let bottom = col[i + 1..col.len()].iter().map(|f| f.to_owned()).collect::<Vec<i32>>();
+                let left = row[0..j].iter().rev().map(|f| f.to_owned()).collect::<Vec<i32>>();
+                let right = row[j + 1..row.len()].iter().map(|f| f.to_owned()).collect::<Vec<i32>>();
+
+                let a = get_view(val.to_owned(), top.to_owned());
+                let b = get_view(val.to_owned(), bottom).to_owned();
+                let c = get_view(val.to_owned(), left.to_owned());
+                let d = get_view(val.to_owned(), right.to_owned());
+                sol.push(a * b * c * d);
+            }
+
+        })
     });
 
     let row_len = asd.first().unwrap().len();
     let coll_len = asd.len();
 
-    let mut sol: Vec<i32> = Vec::new();
-
-    map.iter().for_each(|(pos, val)| {
-        let (x_s, y_s) = pos.split_once(' ').unwrap();
-        let x = x_s.parse::<i32>().unwrap();
-        let y = y_s.parse::<i32>().unwrap();
-        if (x != 0 && y != 0) && (x != coll_len as i32 - 1 && y != row_len as i32 - 1) {
-            let dirr = get_indexes_to_check((x, y), map.to_owned(), row_len, coll_len);
-            let mut top_max = dirr
-                .top
-                .iter()
-                .map(|f| map.get(f).unwrap().to_owned())
-                .collect::<Vec<i32>>();
-            let bottom_max = dirr
-                .bottom
-                .iter()
-                .map(|f| map.get(f).unwrap().to_owned())
-                .collect::<Vec<i32>>();
-            let mut left_max = dirr
-                .left
-                .iter()
-                .map(|f| map.get(f).unwrap().to_owned())
-                .collect::<Vec<i32>>();
-            let right_max = dirr
-                .right
-                .iter()
-                .map(|f| map.get(f).unwrap().to_owned())
-                .collect::<Vec<i32>>();
-
-            top_max.reverse();
-            left_max.reverse();
-
-            let a = get_view(val.to_owned(), top_max.to_owned());
-            let b = get_view(val.to_owned(), bottom_max);
-            let c = get_view(val.to_owned(), left_max.to_owned());
-            let d = get_view(val.to_owned(), right_max);
-            sol.push(a * b * c * d);
-        }
-    });
-
     let s = sol.iter().max().unwrap();
     println!("{s}") // 374400
 }
+
 
 fn main() {
     // let input = read_file("./src/test_input.txt");
