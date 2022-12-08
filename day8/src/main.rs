@@ -12,40 +12,6 @@ fn read_file(path: &str) -> Vec<String> {
     return content.split('\n').map(|s| s.to_string()).collect();
 }
 
-fn to_key(i: i32, j: i32) -> String {
-    let mut is = i.to_string();
-    let js = j.to_string();
-    is.push(' ');
-    is.push_str(js.as_str());
-    is
-}
-
-fn get_indexes_to_check(
-    pos: (i32, i32),
-    _map: HashMap<String, i32>,
-    row_len: usize,
-    coll_len: usize,
-) -> Directions {
-    let top: Vec<String> = (0..pos.0).map(|v| to_key(v, pos.1)).collect();
-
-    let bottom: Vec<String> = (pos.0 + 1..coll_len as i32)
-        .map(|v| to_key(v, pos.1))
-        .collect();
-
-    let left: Vec<String> = (0..pos.1).map(|v| to_key(pos.0, v)).collect();
-
-    let right: Vec<String> = (pos.1 + 1..row_len as i32)
-        .map(|v| to_key(pos.0, v))
-        .collect();
-
-    Directions {
-        top,
-        bottom,
-        left,
-        right,
-    }
-}
-
 fn get_view(val: i32, v: Vec<i32>) -> i32 {
     let mut i = 0;
     let mut j = 0;
