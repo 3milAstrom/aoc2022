@@ -1,4 +1,4 @@
-use std::{collections::HashMap, fs};
+use std::fs;
 
 struct Directions {
     top: Vec<String>,
@@ -97,9 +97,6 @@ fn part2(input: Vec<String>) {
 
         })
     });
-
-    let row_len = asd.first().unwrap().len();
-    let coll_len = asd.len();
 
     let s = sol.iter().max().unwrap();
     println!("{s}") // 374400
