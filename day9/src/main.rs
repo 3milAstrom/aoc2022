@@ -35,7 +35,7 @@ impl Point {
         if x > 1 || y > 1 {
             if p2.x > self.x {
                 self.x+=1;
-            } else if x > 0{
+            } else if x > 0 {
                 self.x-=1;
             }
             if p2.y > self.y {
